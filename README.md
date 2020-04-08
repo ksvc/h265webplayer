@@ -493,6 +493,6 @@ webGLCanvas.drawNextOutputPicture({
 
 参见: [设置解码输出图像回调 set_image_callback](#设置解码输出图像回调-setimagecallback) 
 
-author: xuyang 
-email: xuyangfe@163.com
-qq: 1224657942
+author: xuyang  
+email: xuyangfe@163.com  
+qq: 1224657942  
