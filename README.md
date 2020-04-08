@@ -2,11 +2,11 @@
 
 h265webplayer是金山云的Web端H.265视频播放器，该播放器Web SDK让您可以在支持[WebAssembly](https://caniuse.com/#search=WebAssembly)的浏览器上播放FLVhttp-flv协议的直播视频，mp4格式的点播视频。
 
-<img height="300" src="https://ks3-cn-beijing.ksyun.com/ksplayer/h265/mp4_demo/h265player.png">
+![h265-screenshot](https://github.com/ksvc/h265webplayer/blob/master/h265player.png)
 
 ## 支持的功能
-1、flv格式的直播。
-2、mp4格式的点播（音频需是aac格式的）。
+1、flv格式的直播。  
+2、mp4格式的点播（音频需是aac格式的）。  
 
 ## demo 有两种访问方式 
 
