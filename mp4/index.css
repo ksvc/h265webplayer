@@ -1,0 +1,146 @@
+.ks-container {
+    display: flex;
+    justify-content: center;
+    margin: 0 20px;
+}
+.ks-sub-container {
+    width: 100%;
+}
+.ks-url-input-container {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1em;
+}
+.ks-url-input {
+    border: 1px solid #ccc;
+    width: 80%;
+    line-height: 2.5;
+    height: 34px;
+    padding: 0 10px;
+}
+.ks-title {
+    text-align: center;
+}
+.ks-tip {
+    font-size: 12px;
+    text-align: center;
+}
+.ks-display-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    position: relative;
+}
+#ks-display-canvas {
+    border: 1px solid #ccc;
+    display: block;
+}
+input:focus {
+    outline: none;
+}
+.ks-controls-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1em;
+}
+.ks-controls {
+    width: calc(90% + 20px);
+    text-align: center;
+}
+.ks-controls button {
+    padding: 8px 30px;
+    outline: none;
+    border: 1px solid #ccc;
+    font-weight: 500;
+    color: slategray;
+    margin-right: 1em;
+    cursor: pointer;
+}
+.ks-controls button:hover {
+    background-color: #f8f8f8;
+}
+.ks-controls .ks-controls-load {
+    color: #ffffff;
+    background-color: cornflowerblue;
+}
+.ks-controls .ks-controls-load:hover {
+    background-color: rgb(84, 136, 233);
+}
+input[name="ks-seek-to"] {
+    border: 1px solid #ccc;
+    width: 10em;
+    line-height: 2.5;
+    height: 31px;
+    padding: 0 10px;
+}
+
+.ks-loader {
+    width: 2.5em;
+    height: 2.5em;
+    transform: rotate(165deg);
+    position: absolute;
+    top: calc(50% - 1.25em);
+    left: calc(50% - 1.25em);
+}
+.ks-loader:before, .ks-loader:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 0.25em;
+    transform: translate(-50%, -50%);
+}
+.ks-loader:before {
+    animation: before 2s infinite;
+}
+.ks-loader:after {
+    animation: after 2s infinite;
+}
+  
+@keyframes before {
+    0% {
+        width: 0.5em;
+        box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75), -1em 0.5em rgba(111, 202, 220, 0.75);
+    }
+    35% {
+        width: 2.5em;
+        box-shadow: 0 -0.5em rgba(225, 20, 98, 0.75), 0 0.5em rgba(111, 202, 220, 0.75);
+    }
+    70% {
+        width: 0.5em;
+        box-shadow: -1em -0.5em rgba(225, 20, 98, 0.75), 1em 0.5em rgba(111, 202, 220, 0.75);
+    }
+    100% {
+        box-shadow: 1em -0.5em rgba(225, 20, 98, 0.75), -1em 0.5em rgba(111, 202, 220, 0.75);
+    }
+}
+@keyframes after {
+    0% {
+        height: 0.5em;
+        box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75), -0.5em -1em rgba(233, 169, 32, 0.75);
+    }
+    35% {
+        height: 2.5em;
+        box-shadow: 0.5em 0 rgba(61, 184, 143, 0.75), -0.5em 0 rgba(233, 169, 32, 0.75);
+    }
+    70% {
+        height: 0.5em;
+        box-shadow: 0.5em -1em rgba(61, 184, 143, 0.75), -0.5em 1em rgba(233, 169, 32, 0.75);
+    }
+    100% {
+        box-shadow: 0.5em 1em rgba(61, 184, 143, 0.75), -0.5em -1em rgba(233, 169, 32, 0.75);
+    }
+}
+.show {
+    display: block;
+}
+.hide {
+    display: none;
+}

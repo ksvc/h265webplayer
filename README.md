@@ -1,8 +1,22 @@
 # h265webplayer
 
-h265webplayer是金山云的Web端H.265视频播放器，该播放器Web SDK让您可以在支持[WebAssembly](https://caniuse.com/#search=WebAssembly)的浏览器上播放FLVhttp-flv协议的直播视频，mp4格式的点播视频开发中。
+h265webplayer是金山云的Web端H.265视频播放器，该播放器Web SDK让您可以在支持[WebAssembly](https://caniuse.com/#search=WebAssembly)的浏览器上播放FLVhttp-flv协议的直播视频，mp4格式的点播视频。
+
+![avatar](https://github.com/ksvc/h265webplayer/h265player.png)
+
+## 支持的功能
+1、flv格式的直播。
+2、mp4格式的点播（音频需是aac格式的）。
 
 ## demo 有两种访问方式 
+
+### mp4 demo 访问方式
+1、ks3直接访问，链接如下：
+```
+https://ks3-cn-beijing.ksyun.com/ksplayer/h265/mp4_demo/index.html
+```
+
+### flv demo 访问方式
 
 1、ks3直接访问，链接如下：
 ```
@@ -12,6 +26,7 @@ https://ks3-cn-beijing.ksyun.com/ksplayer/h265/outside_demo/v1.1.3/index.html
 2、获取压缩包后本地创建服务访问，步骤如下：
 
 ## 播放器Demo压缩包地址
+### flv demo zip
 ```
 https://ks3-cn-beijing.ksyun.com/ai-kie/sdk/h265-pc/h265-pc.zip
 ```
@@ -456,7 +471,10 @@ let webGLCanvas = new WebGLCanvas({
                     height: height       //视频帧高度
                 });
 ```
-+ 备注：视频会根据它真实的宽高比自适应视频容器canvas的宽高（<canvas id="videoDisplayCanvas" width="1600" height="600">）
++ 备注：视频会根据它真实的宽高比自适应视频容器canvas的宽高
+```js
+<canvas id="videoDisplayCanvas" width="1600" height="600">
+```
 
 ### 渲染一帧YUV数据
 
@@ -475,3 +493,6 @@ webGLCanvas.drawNextOutputPicture({
 
 参见: [设置解码输出图像回调 set_image_callback](#设置解码输出图像回调-setimagecallback) 
 
+author: xuyang 
+email: xuyangfe@163.com
+qq: 1224657942
