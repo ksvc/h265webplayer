@@ -72,10 +72,16 @@ input:focus {
 }
 input[name="ks-seek-to"] {
     border: 1px solid #ccc;
-    width: 10em;
+    width: 7em;
     line-height: 2.5;
     height: 31px;
     padding: 0 10px;
+}
+.ks-time{
+    display: inline-block;
+    color: slategray;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .ks-loader {
