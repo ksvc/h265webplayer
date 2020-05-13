@@ -115,7 +115,7 @@ canvas | HTMLCanvasElement | - | 画布 canvas dom 元素 |
 ### 播放器支持的方法
 
 方法 | 描述
--|-|-
+-|-|
 load() | 重新加载视频 |
 play() | 开始播放视频 |
 pause() | 暂停当前播放的视频 |
@@ -125,7 +125,7 @@ destroy() | 销毁播放器 |
 ### 播放器支持的属性
 
 方法 | 描述
--|-|-
+-|-|
 currentTime | 设置或返回视频中的当前播放位置（以秒计） |
 muted | 设置或返回音频/视频是否静音 |
 duration | 返回当前音频/视频的长度（以秒计） |
@@ -135,7 +135,7 @@ mediaInfo | 返回视频媒体信息 |
 ### 播放器支持的事件
 
 事件 | 描述
--|-|-
+-|-|
 READY | 播放器初始化完毕时触发 |
 MEDIAINFO | 播放器解封装后获取到视频元数据信息时触发 |
 PLAY | 视频由暂停恢复为播放时触发 |
@@ -178,7 +178,7 @@ player.on(h265js.Events.MEDIAINFO, function(event, data){
 ```
 
 控制条功能 | 实现方法 | 描述
--|-|-|-
+-|-|-|
 Load | load()| 初始化播放器以及加载视频流 |
 Start | start() | 播放视频 |
 Pause | pause() | 暂停视频 |
@@ -194,8 +194,8 @@ Duration | 通过订阅 player 的 MEDIAINFO 事件获取到的第二个回调�
 ### 播放器能力监测  
   
 方法名 | 调用方式 | 描述
--|-|-|-
-isSupportH265 | h265js.isSupportH265()| 返回此浏览器或者此设备是否支持H.265播放 |  
+-|-|-|
+isSupportH265 | h265js.isSupportH265()| 返回此浏览器或者此设备是否支持H.265播放 |
   
 ## 第二种方式：基于H265Decoder解码器
 
