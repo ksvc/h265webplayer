@@ -1,12 +1,15 @@
 # h265webplayer
 
-h265webplayer是金山云的Web端H.265视频播放器，该播放器Web SDK让您可以在支持[WebAssembly](https://caniuse.com/#search=WebAssembly)的浏览器上播放MP4格式的点播视频，FLVhttp-flv协议的直播视频。
+h265webplayer是金山云的Web端H.265视频播放器，该播放器Web SDK让您可以在支持[WebAssembly](https://caniuse.com/#search=WebAssembly)的浏览器上播放MP4格式的点播视频，FLV http-flv协议的直播视频。
 
 ![h265-screenshot](https://github.com/ksvc/h265webplayer/blob/master/h265player.png)
 
 ## 支持的功能
-1、mp4格式的点播（音频需是aac格式的）。  
+1、mp4格式的点播（音频需是aac格式的，其余音频格式待兼容）。   
 2、flv格式的直播。  
+
+## 兼容性
+目前PC端和移动端都可以使用，使用前请使用播放器提供的isSupportH265接口检查是否支持播放条件。
 
 ## demo 有两种访问方式 
 
@@ -57,160 +60,143 @@ https://ks3-cn-beijing.ksyun.com/ai-kie/sdk/h265-pc/h265-pc.zip
 
 *说明：* 请替换页面中的拉流地址进行测试
 
-## token鉴权的两种方式
-
-#### token的意义
-用于鉴权，验证用户是否拥有访问的权利以及访问的时长
-
-#### 如何获取token
-先与商务沟通达成协议后，产品会根据需求提供一个对应的token
-
-### 第一种播放器鉴权token 
-
-```js
-    let player = h265js.createPlayer({
-    }, 
-    {
-        token: '8145ee1ec12300ef84f4cd5bcdg84m05'
-    });
-```
-使用：token通过创建player时option中的token字段传入即可使用
-
-过期：一旦token过期，h265 pc sdk将无法使用，过期通知将通过error事件给出
-
-### 第二种 H265Decoder鉴权token
-```javascript
-let token = '8145ee1ec12300ef84f4cd5bcdg84m05';
-qy265decoder.QY265DecoderCreate(null, token, returnCode);
-```
-使用：token通过创建decoder时的第二个参数传入即可使用
-
-过期：一旦token过期，h265 pc sdk将无法使用，在创建decoder之后检查returnCode值如果等于qy265decoder.QY_TOKEN_INVALID，即为token 过期
-
-```javascript
-if(getValue(returnCode, 'i32') === qy265decoder.QY_TOKEN_INVALID) { 
-    /*token 过期*/ 
-}
-```
-
 ## 集成h265解码器有两种方式
 
 1、直接使用金山自研的h265播放器（推荐）
 2、基于H265Decoder开发使用
 
-## 第一种方式：使用h265播放器，初始化参数配置
+## 第一种方式：使用h265播放器
 
-### 区分直播点播的参数：isLive （默认值：false）
+### token的意义
+用于鉴权，验证用户是否拥有访问的权利以及访问的时长
+
+### 如何获取token
+先与商务沟通达成协议后，产品会根据需求提供一个对应的token
+
+### h265播放器初始化参数配置
+
 
 ```js
-    let player = h265js.createPlayer({
-        isLive: false 
-    }, 
+let player = h265js.createPlayer({
+        isLive: false,
+        type: 'mp4'
+    },
     {
-        wasmFilePath: 'http://localhost:8000/libqydecoder_0531.wasm',
-        url: 'http://localhost:8000/720p_60fps.flv'
+        enableSkipFrame: false,          
+        token: 'f8ce4d1adb97c46f28161a3685232557',  
+        wasmFilePath: 'http://localhost:8000/libqydecoder.wasm',
+        url: urlInput.value,
+        timeToDecideWaiting: 50000,       
+        bufferTime: 0,
+        isShowStatistics: false     
+    },{
+        audioElement: audioElement,
+        canvas: canvas,
+        videoElement: h264VideoEle
     });
 ```
+#### 配置参数说明
 
-其中wasmFilePath参数用于指定wasm解码库的位置。
+配置参数 | 参数类型 | 默认值 |  描述  
+-|-|-|-
+isLive | boolean | false | 区分直播点播的参数。 目前此播放器只支持mp4格式，之后还会集成flv和m3u8格式 |
+type | string | mp4 | 区分视频封装格式 |
+enableSkipFrame | boolean | false | 是否允许跳帧参数。在解码器能力不够时，可以将enableSkipFrame 设置为true。此时会跳过一些不重要的非参考帧不进行解码，以便能流畅播放 |
+token | string | f8ce4d1adb97c46f28161a368529b557（有效期到年底） | 播放器鉴权token。一旦token过期，h265 pc sdk将无法使用，过期通知将通过error事件给出 |
+wasmFilePath | string | https://ks3-cn-beijing.ksyun.com/ksplayer/h265/wasm_resource/libqydecoder.wasm | 用于指定wasm解码库的位置 |
+url | string | https://ks3-cn-beijing.ksyun.com/ksplayer/h265/mp4_resource/moov_head_265.mp4  | 视频流地址。 |
+timeToDecideWaiting | number | 1000(ms) | 暂停多久算卡顿 |
+bufferTime | number | 0(ms) | 启播前缓冲视频时长 |
+isShowStatistics | boolean | false | 是否在控制台输出统计信息 |
+audioElement | HTMLAudioElement | - | 音频 audio dom 元素 |
+canvas | HTMLCanvasElement | - | 画布 canvas dom 元素 |
 
-### 是否允许跳帧参数：enableSkipFrame （默认值：false）
 
-在解码器能力不够时，可以将enableSkipFrame 设置为true。此时会跳过一些不重要的非参考帧不进行解码，以便能流畅播放。
+### 播放器支持的方法
 
+方法 | 描述
+-|-|-
+load() | 重新加载视频 |
+play() | 开始播放视频 |
+pause() | 暂停当前播放的视频 |
+destroy() | 销毁播放器 |
+
+
+### 播放器支持的属性
+
+方法 | 描述
+-|-|-
+currentTime | 设置或返回视频中的当前播放位置（以秒计） |
+muted | 设置或返回音频/视频是否静音 |
+duration | 返回当前音频/视频的长度（以秒计） |
+volume | 设置或返回音频/视频的音量 |
+mediaInfo | 返回视频媒体信息 |
+
+### 播放器支持的事件
+
+事件 | 描述
+-|-|-
+READY | 播放器初始化完毕时触发 |
+MEDIAINFO | 播放器解封装后获取到视频元数据信息时触发 |
+PLAY | 视频由暂停恢复为播放时触发 |
+PAUSE | 视频暂停时触发 |
+LOADSTART | 播放器开始加载数据时触发 |
+VOLUMECHANGE | 当音量改变时触发 |
+ERROR | 发生错误时触发 |
+WAITING | 出现卡顿，需要缓存下一帧数据时触发 |
+PLAYING | 播放时触发 |
+ENDED | 播放结束时触发 |
+RELOAD | 解码能力不足时触发 |
+
+### 获取视频编码格式方法
 ```js
-    let player = h265js.createPlayer({
-
-    }, 
-    {
-        url: 'http://localhost:8000/720p_60fps.flv',
-        enableSkipFrame: false,
-        wasmFilePath: 'http://localhost:8000/libqydecoder_0531.wasm'
-    });
+player.on(h265js.Events.MEDIAINFO, function(event, data){
+    codec = data.codec;
+    if (codec === 'avc1') {   // h.264
+        // 处理h.264视频相关逻辑
+    } else if (codec === 'hev1') { // h.265
+        // 处理h.265视频相关逻辑
+    }
+});
+```
+### 播放器控制条功能说明
+```html
+<div class="ks-controls">
+    <button class="ks-controls-load" onclick="load()">Load</button>
+    <button onclick="start()">Start</button>
+    <button onclick="pause()">Pause</button>
+    <button class="ks-controls-muted" onclick="muted()" data-type="muted">Muted</button>
+    <button onclick="fullscreen()">Fullscreen</button>
+    <input type="text" name="ks-seek-to" value="35"/>
+    <button onclick="seekto()">SeekTo</button>
+    <div class="ks-time">
+        <span class="ks-current">00:00:00</span>
+        /
+        <span class="ks-duration">00:00:00</span>
+    </div>
+</div>
 ```
 
-### 是否启用GPU渲染YUV图像参数： enableYUVrender （默认值：true）
-
-当enableYUVrender为true时，通过WebGL直接渲染YUV图像数据（YUV到RGBA颜色空间的转换在GPU上计算）。
-
-```js
-    let player = h265js.createPlayer({
-
-    }, 
-    {
-        url: 'http://localhost:8000/720p_60fps.flv',
-        enableYUVrender: true,
-        wasmFilePath: 'http://localhost:8000/libqydecoder_0531.wasm'
-    });
-```
-
-### 缓存队列相关参数
-
-通过maxLength4ToBeDecodeQueue和maxLength4ToBeRenderQueue参数可以设置待解码缓存队列和待渲染缓存队列（已解码帧队列）的最大长度，以便有效控制内存占用。
-
-```js
-    let player = h265js.createPlayer({
-    }, 
-    {
-        url: 'http://localhost:8000/720p_60fps.flv',
-        maxLength4ToBeDecodeQueue: 5 * 60, //待解码队列中NALU的最大长度
-        maxLength4ToBeRenderQueue: 30, //待渲染帧队列的最大长度
-        wasmFilePath: 'http://localhost:8000/libqydecoder_0531.wasm'
-    });
-```
-### 卡顿时长设置： timeToDecideWaiting （默认值：500, 单位：ms）
-
-```js
-    let player = h265js.createPlayer({
-    }, 
-    {
-        timeToDecideWaiting: 500
-    });
-```
-### 启播前缓冲视频时长： bufferTime  （默认值：500, 单位：ms）
-
-```js
-    let player = h265js.createPlayer({
-    }, 
-    {
-        bufferTime: 500
-    });
-```
-
-## 播放器相关事件
-
-通过`on`方法可以监听播放器相关事件，`off`方法可以取消监听。
-
-示例代码
-
-```js
-    /**
-     * @param {object} event player 播放器对象
-     * @param {object} data  事件相关信息
-     */
-    player.on("ready",function(event, data) {
-        //Do something   
-    });
-```
-
-播放器事件列表
-
-```js
-h265js.Events = {
-    READY: 'ready',                                 //播放器初始化完毕可以播放视频时触发
-    PLAY: 'play',                                   //视频由暂停恢复为播放时触发
-    PAUSE: 'pause',                                 //视频暂停时触发
-    RELOAD: 'reload',                               //音视频时间戳相差超过maxAVTimeStampGap值时触发，建议重新拉流时
-    LOADSTART: 'loadStart',                         //播放器开始加载数据时触发
-    MEDIAINFO: 'mediaInfo',                         //媒体详细信息
-    LOADEDEND: 'loadedEnd',                         //播放器加载到第一帧数据后触发
-    VOLUMECHANGE: 'volumechange',                   //当音量改变时触发
-    ERROR: 'error',                                 //发生错误时触发
-    WAITING: 'waiting',                             //出现卡顿，需要缓存下一帧数据时触发
-    PLAYING: 'playing',                             //播放时触发
-    STATISTICSINFO: 'statisticsInfo'                //数据统计信息
-}
-```
+控制条功能 | 实现方法 | 描述
+-|-|-|-
+Load | load()| 初始化播放器以及加载视频流 |
+Start | start() | 播放视频 |
+Pause | pause() | 暂停视频 |
+Muted | muted() | 静音 |
+UnMuted | muted() | 非静音 |
+Fullscreen | fullscreen() | 播放器全屏, 按esc键退出全屏 |
+SeekTo | seekto() | 触发seek功能，时间点根据input[name="ks-seek-to"]的value值来决定，时间单位为（秒） |
+currentTime | 通过订阅 player 的 ONTIMEUPDATE 事件获取到的第二个回调参数 currentTime | 当前播放时间 |
+Duration | 通过订阅 player 的 MEDIAINFO 事件获取到的第二个回调参数 data 中的 audioDuration | 视频时长 |
+  
+控制条功能具体实现逻辑可以参考demo  
+  
+### 播放器能力监测  
+  
+方法名 | 调用方式 | 描述
+-|-|-|-
+isSupportH265 | h265js.isSupportH265()| 返回此浏览器或者此设备是否支持H.265播放 |  
+  
 ## 第二种方式：基于H265Decoder解码器
 
 ### JS接口说明

@@ -84,6 +84,20 @@ input[name="ks-seek-to"] {
     font-weight: 500;
 }
 
+#ks-display-video {
+    width: 960px;
+    height: 540px;
+    display: none;
+}
+
+.ks-error-tip {
+    position: absolute;
+    top: calc(50% - 1.25em);
+    left: calc(50% - 136px);
+    color: slategray;
+    display: none;
+}
+
 .ks-loader {
     width: 2.5em;
     height: 2.5em;

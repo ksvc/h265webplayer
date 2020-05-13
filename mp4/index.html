@@ -14,28 +14,30 @@
     <div class="ks-container">
         <div class="ks-sub-container">
             <h3 class="ks-title">H.265 MP4 Web Player</h3>
-            <p class="ks-tip">点击下方 load 加载H.265 MP4视频</p>
+            <p class="ks-tip">点击下方 load 加载 mp4 视频</p>
             <div class="ks-display-container">
                 <canvas id="ks-display-canvas" width="960" height="540">
                     Your browser is too old which doesn't support HTML5 canvas
                 </canvas>
+                <video id="ks-display-video"></video>
                 <div class="ks-loader hide"></div>
+                <div class="ks-error-tip">视频格式不支持或视频元数据解析失败</div>
             </div>
             <audio name="ks-audio" controls style="display:none;">
                 Your browser is too old which doesn't support HTML5 audio.
             </audio>
             <div class="ks-url-input-container">
-                <input name="265urlinput" class="ks-url-input" type="text" value="https://github.com/ksvc/h265webplayer/mp4/jinjie_265.mp4"/>
+                <input name="265urlinput" class="ks-url-input" type="text" value="https://ks3-cn-beijing.ksyun.com/ksplayer/h265/mp4_resource/jinjie_265.mp4"/>
             </div>
             <div class="ks-controls-container">
                 <div class="ks-controls">
-                    <button class="ks-controls-load" onclick="flv_load()">Load</button>
-                    <button onclick="flv_start()">Start</button>
-                    <button onclick="flv_pause()">Pause</button>
-                    <button onclick="flv_destroy()">Destroy</button>
-                    <input type="text" name="ks-seek-to" value="35"/>
-                    <button onclick="flv_seekto()">SeekTo</button>
+                    <button class="ks-controls-load" onclick="load()">Load</button>
+                    <button onclick="start()">Start</button>
+                    <button onclick="pause()">Pause</button>
                     <button class="ks-controls-muted" onclick="muted()" data-type="muted">Muted</button>
+                    <button onclick="fullscreen()">Fullscreen</button>
+                    <input type="text" name="ks-seek-to" value="10"/>
+                    <button onclick="seekto()">SeekTo</button>
                     <div class="ks-time">
                         <span class="ks-current">00:00:00</span>
                         /
@@ -46,6 +48,248 @@
         </div>
     </div>
 <script src="./h265.min.js"></script>
-<script src="./index.js"></script>
+<script>
+    var player, logcatbox = document.getElementsByName('logcatbox')[0];
+    var audioElement = document.getElementsByName('ks-audio')[0];
+    var urlInput = document.getElementsByName('265urlinput')[0];
+    var canvas = document.getElementById('ks-display-canvas');
+    var domainUrl = location.origin;
+    var mutedEle = document.getElementsByClassName('ks-controls-muted')[0];
+    var loadingEle = document.getElementsByClassName('ks-loader')[0];
+    var currentEle = document.getElementsByClassName('ks-current')[0];
+    var durationEle = document.getElementsByClassName('ks-duration')[0];
+    var h264VideoEle = document.getElementById('ks-display-video');
+    var errorTipEle = document.getElementsByClassName('ks-error-tip')[0];
+    var codec = null;
+    var isSupportH265 = h265js.isSupportH265();
+
+    if (!isSupportH265) {
+        alert('此浏览器不支持H.265播放器');
+    }
+
+    function reset() {
+        currentEle.innerHTML = '00:00:00';
+        durationEle.innerHTML = '00:00:00';
+    }
+
+    h264VideoEle.ontimeupdate = function() {
+        var current = secondToDate(this.currentTime);
+        currentEle.innerHTML = current;
+    }
+
+    function checkFullscreen() {
+        var isFullScreen = document.fullScreen || 
+            document.mozFullScreen || 
+            document.webkitIsFullScreen;
+        return isFullScreen;
+    }
+
+    window.onresize = function () {
+        if (!checkFullscreen()) {
+            canvas.style.border = '1px solid #ccc';
+        }
+    }
+
+    function load() {
+        showLoading();
+        hideErrorTip();
+        reset();
+        if (typeof player !== "undefined") {
+            if (player != null) {
+                h264VideoEle.pause();
+                h264VideoEle.src = '';
+                h264VideoEle.currentTime = 0;
+                player.destroy();
+                player = null;
+            }
+        }
+
+        player = h265js.createPlayer({
+            isLive: false,
+            type: 'mp4'
+        },
+        {
+            enableSkipFrame: true,
+            token: 'f8ce4d1adb97c46f28161a3685232557',  
+            url: urlInput.value,
+            wasmFilePath: 'https://ks3-cn-beijing.ksyun.com/ksplayer/h265/wasm_resource/libqydecoder.wasm',
+            timeToDecideWaiting: 50000,       
+            bufferTime: 0  
+        },{
+            audioElement: audioElement,
+            canvas: canvas
+        });
+
+        if (player) {
+
+            player.on(h265js.Events.READY, function(event, data){
+                player.load();
+            });
+            player.on(h265js.Events.MEDIAINFO, function(event, data){
+                // console.warn('mediaInfo: ', data);
+                codec = data.codec;
+                loadingEle.setAttribute('class', 'ks-loader hide');
+                var duration = secondToDate(data.audioDuration);
+                durationEle.innerHTML = duration;
+
+                if (codec === 'avc1') {
+                    canvas.style.display = 'none';
+                    h264VideoEle.style.display = 'block';
+                    h264VideoEle.src = urlInput.value;
+                    h264VideoEle.play();
+                } else if (codec === 'hev1') {
+                    h264VideoEle.style.display = 'none';
+                    canvas.style.display = 'block';
+                }
+            });
+            player.on(h265js.Events.ONTIMEUPDATE, function(event, currentTime){
+                // console.warn('ontimeupdate: ', currentTime);
+                var current = secondToDate(currentTime);
+                currentEle.innerHTML = current;
+            });
+            player.on(h265js.Events.ERROR, function(event, data){
+                // console.warn('error: ', event, data.type, data.detail, data.info, data.info.code, data.info.msg);
+                hideLoading();
+                showErrorTip();
+            });
+            player.on(h265js.Events.PLAYING, function(event, data){
+                // console.warn('-- PLAYING --');
+                hideLoading();
+            });
+            player.on(h265js.Events.ENDED, function(event, data){
+                // console.warn('-- ended --');
+                hideLoading();
+            });
+        }
+    }
+
+    function start() {
+        if (codec === 'avc1') {
+            h264VideoEle.play();
+        } else {
+            player && player.play();
+        }
+    }
+
+    function pause() {
+        if (codec === 'avc1') {
+            h264VideoEle.pause();
+        } else {
+            player && player.pause();
+        }
+    }
+
+    function destroy() {
+        if (player) {
+            setTimeout(function() {
+                player.destroy();
+                player = null;
+            }, 500);
+        }
+    }
+
+    function seekto() {
+        var input = document.getElementsByName('ks-seek-to')[0];
+        if (input.value <= player.duration) {
+            if (codec !== 'avc1') {
+                showLoading();
+                player.currentTime = parseFloat(input.value);
+            } else {
+                h264VideoEle.currentTime = parseFloat(input.value);
+            }
+        } else {
+            alert('seek time over than audio duration');
+        }
+    }
+
+    function muted() {
+        var type = mutedEle.getAttribute('data-type');
+        switch(type) {
+            case 'muted':
+                mutedEle.setAttribute('data-type', 'unmuted');
+                mutedEle.innerHTML = 'UnMuted';
+                if (codec === 'avc1') {
+                    h264VideoEle.muted = true;
+                } else {
+                    player.muted = true;
+                }
+                break;
+            case 'unmuted':
+                mutedEle.setAttribute('data-type', 'muted');
+                mutedEle.innerHTML = 'Muted';
+                if (codec === 'avc1') {
+                    h264VideoEle.muted = false;
+                } else {
+                    player.muted = false;
+                }
+                break;
+            default:
+        }
+    }
+
+    function fullscreen () {
+        var element = canvas,
+            method = "RequestFullScreen",
+            prefixMethod;
+        element.style.border = 'none';
+		["webkit", "moz", "ms", "o", ""].forEach(function(prefix) {
+			if (prefixMethod) 
+				return;
+			if (prefix === "") {
+				method = method.slice(0,1).toLowerCase() + method.slice(1);
+			}
+			var fsMethod = typeof element[prefix + method];
+				if (fsMethod + "" !== "undefined") {
+					if (fsMethod === "function") {
+						prefixMethod = element[prefix + method]();
+					} else {
+						prefixMethod = element[prefix + method];
+					}
+				}
+			}
+		);
+    }
+
+    function showLoading () {
+        loadingEle.setAttribute('class', 'ks-loader show');
+    }
+
+    function hideLoading () {
+        if (codec !== 'avc1') {
+            let isHide = loadingEle.getAttribute('class');
+            if (isHide === 'ks-loader show') {
+                loadingEle.setAttribute('class', 'ks-loader hide');
+            }
+        }
+    }
+
+    function showErrorTip () {
+        errorTipEle.style.display = 'block';
+    }
+
+    function hideErrorTip () {
+        errorTipEle.style.display = 'none';
+    }
+
+    function getUrlParam(key, defaultValue) {
+        var pageUrl = window.location.search.substring(1);
+        var pairs = pageUrl.split('&');
+        for (var i = 0; i < pairs.length; i++) {
+            var keyAndValue = pairs[i].split('=');
+            if (keyAndValue[0] === key) {
+                return keyAndValue[1];
+            }
+        }
+        return defaultValue;
+    }
+
+    //秒数转时分秒格式（ 00:00:00 ）
+    function secondToDate(result) {
+        let h = Math.floor(result / 3600) < 10 ? '0' + Math.floor(result / 3600) : Math.floor(result / 3600);
+        let m = Math.floor((result / 60 % 60)) < 10 ? '0' + Math.floor((result / 60 % 60)) : Math.floor((result / 60 % 60));
+        let s = Math.floor((result % 60)) < 10 ? '0' + Math.floor((result % 60)) : Math.floor((result % 60));
+        return result = h + ":" + m + ":" + s;
+    }
+</script>
 </body>
 </html>
